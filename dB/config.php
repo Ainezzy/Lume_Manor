@@ -3,7 +3,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$database = "integgg";
+$database = "lume_manor";
 
 $conn = new mysqli($servername, $username, $password, $database);
 
