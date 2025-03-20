@@ -365,8 +365,9 @@ h6 {
 }
 
 .logo img {
-  max-height: 26px;
+  max-height: 280px;
   margin-right: 6px;
+  
 }
 
 .logo span {
@@ -397,6 +398,7 @@ h6 {
 .header .search-bar {
   min-width: 360px;
   padding: 0 20px;
+  padding-top: 20px;
 }
 
 @media (max-width: 1199px) {

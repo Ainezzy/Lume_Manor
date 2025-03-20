@@ -226,4 +226,40 @@
       </ul>
     </nav><!-- End Icons Navigation -->
 
+    <style>
+      /* Topbar (Header) background color */
+      #header {
+        background-color: #222D17 !important;
+      }
+
+      /* Topbar text and icons color */
+      #header, 
+      #header .nav-link, 
+      #header .nav-link i, 
+      #header .logo span, 
+      #header .badge-number {
+        color: white !important;
+      }
+
+      /* Dropdown menu background */
+      #header .dropdown-menu {
+        background-color: #222D17 !important;
+        border-color: #BB9C34 !important;
+      }
+
+      /* Dropdown text color */
+      #header .dropdown-item {
+        color: white !important;
+      }
+
+      #header .dropdown-item:hover {
+        background-color: #BB9C34 !important;
+        color: #222D17 !important;
+      }
+
+      .toggle-sidebar-btn {
+        color: white !important;
+      }
+    </style>
+
   </header><!-- End Header -->

@@ -12,7 +12,7 @@ else{
 if($_SESSION['userRole'] != 'admin') {
     $_SESSION['message'] = "You are not authorized as ADMIN";
     $_SESSION['code'] = "error";
-    header("Location: ../../view/users/index.php");
+    header("Location: ../../view/admin/index.php");
     exit();
 }
 }

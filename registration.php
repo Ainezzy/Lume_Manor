@@ -90,24 +90,18 @@
                       <div class="invalid-feedback">Please enter your phone number</div>
                     </div>
 
+                    <!-- <div class="col-12">
+                    <label class="col-12">Role</label>
                     <div class="col-12">
-                    <label class="col-12">Gender</label>
-                    <div class="col-12">
-                        <select name="gender" id="gender" class="form-select" required>
-                        <option selected disabled>Select gender</option>
+                        <select name="role" id="role" class="form-select" required>
+                        <option selected disabled>Select role</option>
                         <option value="1">Male</option>
                         <option value="2">Female</option>
                         </select>
                     </div>
-                    </div>
+                    </div> -->
 
-                    <div class="col-12">
-                    <label for="inputDate" class="col-12">Birthday</label>
-                    <div class="col-12">
-                        <input type="date" name="birthday" class="form-control">
-                    </div>
-                    </div>
-
+              
             
 
                     <div class="col-12 mt-4 mb-4">

@@ -143,4 +143,32 @@
 
 </body>
 
+<style>
+  body {
+    background-color: #F4F7EF;
+  }
+  /* Set font color */
+  body, h1, h2, h3, h4, h5, h6, p, label, .form-label {
+      color: #1e1e1e !important;
+  }
+
+  /* Change active text color */
+  a, a:hover, a:focus {
+      color: #BB9C34 !important;
+  }
+
+  /* Change button color */
+  .btn-primary {
+      background-color: #FBC741 !important;
+      border-color: #FBC741 !important;
+      color: #1e1e1e !important;
+  }
+
+  /* Button hover effect */
+  .btn-primary:hover {
+      background-color: #e0a830 !important;
+      border-color: #e0a830 !important;
+  }
+</style>
+
 </html>
