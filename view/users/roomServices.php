@@ -12,41 +12,70 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $specialRequest = $_POST['specialRequest'];
     $preferredTime = $_POST['preferredTime'];
 
-    // Ensure user is logged in
+    // Ensure the user is logged in
     if (!isset($_SESSION['authUser']['userId'])) {
         die("User not logged in.");
     }
+    
     $userId = $_SESSION['authUser']['userId'];
 
-     // Get the latest guestId for the logged-in user
-    $guestCheckQuery = "SELECT guestId FROM reservations WHERE userId = '$userId' ORDER BY guestId DESC LIMIT 1";
-    $guestCheckResult = mysqli_query($conn, $guestCheckQuery);
-    if (!$guestCheckResult || mysqli_num_rows($result) == 0) {
-        die("No active booking found.");
-    }
-    $row = mysqli_fetch_assoc($guestCheckResult);
-    $guestId = $row['guestId'];
+    // Check if the user is a guest
+    $guestQuery = "SELECT guest_id FROM guests WHERE user_id = ?";
+    $stmt = mysqli_prepare($conn, $guestQuery);
+    mysqli_stmt_bind_param($stmt, "i", $userId);
+    mysqli_stmt_execute($stmt);
+    $guestResult = mysqli_stmt_get_result($stmt);
 
-    // Ensure roomNumber exists in the rooms table before inserting
-    $roomCheckQuery = "SELECT roomNumber FROM rooms WHERE roomNumber = '$roomNumber'";
-    $roomCheckResult = mysqli_query($conn, $roomCheckQuery);
-    if (!$roomCheckResult || mysqli_num_rows($roomCheckResult) == 0) {
-        die("Invalid room number. Please enter a valid room.");
+    if (!$guestResult || mysqli_num_rows($guestResult) == 0) {
+        die("You are not registered as a guest.");
     }
 
-    // Insert into database (make sure table name and columns match your DB)
-    $sql = "INSERT INTO roomservices(roomServiceId, roomNumber, guestId, serviceType, specialRequest, preferredTime) 
-            VALUES ('$roomServiceId', '$roomNumber', '$guestId', '$serviceType', '$specialRequest', '$preferredTime')";
+    $guestRow = mysqli_fetch_assoc($guestResult);
+    $guestId = $guestRow['guest_id'];
 
-    if (mysqli_query($conn, $sql)) {
-        echo "<script>alert('We've sent your room service request. Please wait.'); window.location.href='dashboard.php';</script>";
+    // Check if the room number exists and get its room_id
+    $roomQuery = "SELECT room_id FROM rooms WHERE room_number = ?";
+    $stmt = mysqli_prepare($conn, $roomQuery);
+    mysqli_stmt_bind_param($stmt, "i", $roomNumber);
+    mysqli_stmt_execute($stmt);
+    $roomResult = mysqli_stmt_get_result($stmt);
+
+    if (!$roomResult || mysqli_num_rows($roomResult) == 0) {
+        die("Invalid room number.");
+    }
+
+    $roomRow = mysqli_fetch_assoc($roomResult);
+    $roomId = $roomRow['room_id'];
+
+    // Check if the guest has an active booking for this room
+    $bookingQuery = "SELECT booking_id FROM bookings WHERE guest_id = ? AND room_id = ? AND check_out_date >= CURDATE()";
+    $stmt = mysqli_prepare($conn, $bookingQuery);
+    mysqli_stmt_bind_param($stmt, "ii", $guestId, $roomId);
+    mysqli_stmt_execute($stmt);
+    $bookingResult = mysqli_stmt_get_result($stmt);
+
+    if (!$bookingResult || mysqli_num_rows($bookingResult) == 0) {
+        die("No active booking found for this room.");
+    }
+
+    $bookingRow = mysqli_fetch_assoc($bookingResult);
+    $bookingId = $bookingRow['booking_id'];
+
+    // Insert into room_services table
+    $insertQuery = "INSERT INTO room_services (booking_id, room_id, room_service, special_request, preferred_service_time) 
+                    VALUES (?, ?, ?, ?, ?)";
+    $stmt = mysqli_prepare($conn, $insertQuery);
+    mysqli_stmt_bind_param($stmt, "iisss", $bookingId, $roomId, $serviceType, $specialRequest, $preferredTime);
+
+    if (mysqli_stmt_execute($stmt)) {
+        echo "<script>alert('We've sent your room service request. Please wait.'); window.location.href='roomServices.php';</script>";
     } else {
         echo "Error: " . mysqli_error($conn);
     }
 
+    mysqli_stmt_close($stmt);
     mysqli_close($conn);
 }
-
 ?>
 
 <section class="section">

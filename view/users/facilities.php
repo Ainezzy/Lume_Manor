@@ -1,8 +1,72 @@
 <?php
 include("../../auth/authenticationForUser.php");
+include("../../dB/config.php");
 include("./includes/header.php");
 include("./includes/topbar.php");
 include("./includes/sidebar.php");
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!isset($_POST['facility'], $_POST['reservationDate'], $_POST['startTime'], $_POST['endTime'], $_POST['paymentMethod'])) {
+        die("All fields are required.");
+    }
+
+    $facility_id = $_POST['facility'];
+    $preferred_date = $_POST['reservationDate'];
+    $start_time = $_POST['startTime'];
+    $end_time = $_POST['endTime'];
+    $payment_method = $_POST['paymentMethod'];
+
+    if (!isset($_SESSION['authUser']['userId'])) {
+        die("User not logged in.");
+    }
+
+    $userId = $_SESSION['authUser']['userId'];
+
+    // Validate if the selected facility ID exists in the database
+    $facilityCheckQuery = "SELECT facility_id FROM facilities WHERE facility_id = ?";
+    $stmt = $conn->prepare($facilityCheckQuery);
+    $stmt->bind_param("i", $facility_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        die("Invalid facility selected.");
+    }
+
+    // Check if the user is already a guest
+    $query = "SELECT guest_id FROM guests WHERE user_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $guest = $result->fetch_assoc();
+
+    if ($guest) {
+        $guest_id = $guest['guest_id'];
+    } else {
+        $insertGuest = "INSERT INTO guests (user_id) VALUES (?)";
+        $stmt = $conn->prepare($insertGuest);
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $guest_id = $stmt->insert_id;
+    }
+
+    // Insert the facility reservation
+    $insertReservation = "INSERT INTO facility_reservations 
+                      (guest_id, facility_id, preferred_date, preferred_start_time, preferred_end_time) 
+                      VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($insertReservation);
+    $stmt->bind_param("iisss", $guest_id, $facility_id, $preferred_date, $start_time, $end_time);
+
+    if ($stmt->execute()) {
+        echo "<script>alert('Facility reserved successfully.'); window.location.href='facilities.php';</script>";
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+
+    $stmt->close();
+    $conn->close();
+}
 ?>
 
 <section class="section">
@@ -59,24 +123,12 @@ include("./includes/sidebar.php");
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Reserve a Facility</h5>
-                    <form>
-                        <div class="row mb-3">
-                            <label for="guestName" class="col-sm-2 col-form-label">Guest Name</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="guestName">
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label for="roomNumber" class="col-sm-2 col-form-label">Room Number</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="roomNumber">
-                            </div>
-                        </div>
+                    <form method="POST" action="facilities.php">
                         <div class="row mb-3">
                             <label class="col-sm-2 col-form-label">Facility</label>
                             <div class="col-sm-10">
-                                <select class="form-select">
-                                    <option selected>Select Facility</option>
+                                <select class="form-select" name="facility" required> <!-- Added name attribute -->
+                                    <option value="" selected disabled>Select Facility</option>
                                     <option value="1">Spa & Wellness</option>
                                     <option value="2">Swimming Pool</option>
                                     <option value="3">Fitness Center</option>
@@ -86,20 +138,32 @@ include("./includes/sidebar.php");
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label for="reservationTime" class="col-sm-2 col-form-label">Preferred Time</label>
+                            <label for="reservationDate" class="col-sm-2 col-form-label">Preferred Date</label>
                             <div class="col-sm-10">
-                                <input type="datetime-local" class="form-control" id="reservationTime">
+                                <input type="date" class="form-control" id="reservationDate" name="reservationDate" required> <!-- Fixed name -->
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="startTime" class="col-sm-2 col-form-label">Start Time</label>
+                            <div class="col-sm-10">
+                                <input type="time" class="form-control" id="startTime" name="startTime" required> <!-- Fixed name -->
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="endTime" class="col-sm-2 col-form-label">End Time</label>
+                            <div class="col-sm-10">
+                                <input type="time" class="form-control" id="endTime" name="endTime" required> <!-- Fixed name -->
                             </div>
                         </div>
                         <div class="row mb-3">
                             <label class="col-sm-2 col-form-label">Payment Method</label>
                             <div class="col-sm-10">
-                                <select class="form-select">
-                                    <option selected>Select Payment Method</option>
-                                    <option value="1">Credit Card</option>
-                                    <option value="2">Debit Card</option>
-                                    <option value="3">Bank Transfer</option>
-                                    <option value="4">Pay at Hotel</option>
+                                <select class="form-select" name="paymentMethod" required> <!-- Fixed name -->
+                                    <option value="" disabled selected>Select Payment Method</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="Debit Card">Debit Card</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Pay at Hotel">Pay at Hotel</option>
                                 </select>
                             </div>
                         </div>

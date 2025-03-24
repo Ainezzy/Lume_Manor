@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Pages / Register - NiceAdmin Bootstrap Template</title>
+  <title>Lume Manor Registration</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -52,7 +52,7 @@
                     <p class="text-center small">Enter your personal details to create account</p>
                   </div>
 
-                  <form class="row g-3 needs-validation" action="/controller/createAccount.php" method="POST" novalidate>
+                  <form method = "POST" action="./controller/createAccount.php" class="row g-3 needs-validation" novalidate>
                     <div class="col-12">
                       <label for="firstname" class="form-label">First Name</label>
                       <input type="text" name="firstname" class="form-control" id="firstname" required>
@@ -90,18 +90,24 @@
                       <div class="invalid-feedback">Please enter your phone number</div>
                     </div>
 
-                    <!-- <div class="col-12">
-                    <label class="col-12">Role</label>
                     <div class="col-12">
-                        <select name="role" id="role" class="form-select" required>
-                        <option selected disabled>Select role</option>
-                        <option value="1">Male</option>
-                        <option value="2">Female</option>
+                    <label for="gender" class="col-12">Gender</label>
+                    <div class="col-12">
+                        <select name="gender" id="gender" class="form-select" required>
+                        <option selected disabled>Select gender</option>
+                        <option value="1">Female</option>
+                        <option value="2">Male</option>
                         </select>
                     </div>
-                    </div> -->
+                    </div>
 
-              
+                    <div class="col-12">
+                    <label for="inputDate" class="col-12">Birthday</label>
+                    <div class="col-12">
+                        <input type="date" name="birthday" class="form-control">
+                    </div>
+                    </div>
+
             
 
                     <div class="col-12 mt-4 mb-4">
@@ -145,7 +151,7 @@
   <script src="assets/vendor/php-email-form/validate.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <script>
+  <!-- <script>
 
     const Toast = Swal.mixin({
     toast: true,
@@ -162,7 +168,7 @@
     icon: "success",
     title: "Signed in successfully"
   });
-  </script>
+  </script> -->
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
