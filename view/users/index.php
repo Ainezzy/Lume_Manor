@@ -3,16 +3,92 @@ include("../../auth/authenticationForUser.php");
 include("./includes/header.php");
 include("./includes/topbar.php");
 include("./includes/sidebar.php");
+
+
+// Ensure user is logged in
+if (!isset($_SESSION['authUser']['userId'])) {
+    die("User not logged in.");
+}
+$userId = $_SESSION['authUser']['userId'];
+
+
+$bookingOverview = null;
+$bookingHistory = [];
+
+if ($userId) {
+    // Fetch Guest ID and Full Name from guests and users tables
+    $guestQuery = "SELECT g.guest_id, CONCAT(u.firstName, ' ', u.lastName) AS guest_full_name
+                   FROM guests g
+                   JOIN users u ON g.user_id = u.userId
+                   WHERE g.user_id = ?";
+    
+    $stmt = $conn->prepare($guestQuery);
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $guestResult = $stmt->get_result();
+    $guest = $guestResult->fetch_assoc();
+    $stmt->close();
+
+    if (!empty($guest)) {
+        $guest_id = $guest['guest_id'];
+        $guest_full_name = $guest['guest_full_name']; // Store full name
+
+        // Fetch most recent booking (Booking Overview)
+        $overviewQuery = "SELECT 
+                            b.booking_id, b.guest_id, r.room_type, r.room_number, 
+                            b.check_in_date, b.check_out_date, 
+                            DATEDIFF(b.check_out_date, b.check_in_date) AS nights_stayed,
+                            p.amount AS total_paid
+                          FROM bookings b
+                          JOIN rooms r ON b.room_id = r.room_id
+                          LEFT JOIN payments p ON b.payment_id = p.payment_id
+                          WHERE b.guest_id = ?
+                          ORDER BY b.check_in_date DESC
+                          LIMIT 1"; 
+
+        $stmt = $conn->prepare($overviewQuery);
+        $stmt->bind_param("i", $guest_id);
+        $stmt->execute();
+        $overviewResult = $stmt->get_result();
+        $bookingOverview = $overviewResult->fetch_assoc();
+        $stmt->close();
+
+        // Fetch booking history (Previous bookings)
+        $historyQuery = "SELECT 
+                            r.room_type, 
+                            b.check_in_date, b.check_out_date, 
+                            p.amount AS total_paid,
+                            (SELECT GROUP_CONCAT(rs.room_service SEPARATOR ', ') 
+                             FROM room_services rs 
+                             WHERE rs.booking_id = b.booking_id) AS room_services
+                         FROM bookings b
+                         JOIN rooms r ON b.room_id = r.room_id
+                         LEFT JOIN payments p ON b.payment_id = p.payment_id
+                         WHERE b.guest_id = ?
+                         ORDER BY b.check_in_date DESC";
+
+        $stmt = $conn->prepare($historyQuery);
+        $stmt->bind_param("i", $guest_id);
+        $stmt->execute();
+        $historyResult = $stmt->get_result();
+
+        while ($row = $historyResult->fetch_assoc()) {
+            $bookingHistory[] = $row;
+        }
+        $stmt->close();
+    }
+    else {
+        echo "No guest record found for this user.";
+        exit();
+    }
+}
+
+$conn->close();
 ?>
 
-<div class="pagetitle">
-    <h1>Hello, User!</h1>
-    <nav>
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item active"><a href="index.html">Home</a></li>
-    </ol>
-    </nav>
-</div><!-- End Page Title -->
+
+
+
    
    
 <section class="section">
@@ -22,32 +98,21 @@ include("./includes/sidebar.php");
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Booking Overview</h5>
-                    
-                    <h6>📌 Booking Overview (Current Stay)</h6>
-                    <ul>
-                        <li><strong>Guest Name:</strong> John Doe</li>
-                        <li><strong>Room Type:</strong> Deluxe Suite</li>
-                        <li><strong>Room Number:</strong> 305</li>
-                        <li><strong>Check-In Date:</strong> March 9, 2025</li>
-                        <li><strong>Check-Out Date:</strong></li>
-                        <li><strong>Nights Stayed:</strong> 5 Nights</li>
-                        <li><strong>Total Amount Paid:</strong> ₱30,500</li>
-                        <li><strong>Remaining Balance (if any):</strong> ₱0</li>
-                    </ul>
 
-                    <h6>🛎️ Room Services Availed</h6>
-                    <ul>
-                        <li><strong>Daily Housekeeping:</strong> ✅ Scheduled at 10 AM</li>
-                        <li><strong>Laundry Service:</strong> ✅ In Progress</li>
-                        <li><strong>Mini-Bar Charges:</strong> ₱750</li>
-                    </ul>
-
-                    <h6>🏨 Hotel Facilities & Perks</h6>
-                    <ul>
-                        <li><strong>Breakfast Included:</strong> ✅ Served from 6 AM - 10 AM</li>
-                        <li><strong>Pool & Gym Access:</strong> ✅ 24/7 Available</li>
-                        <li><strong>Wi-Fi Status:</strong> ✅ Connected</li>
-                    </ul>
+                    <?php if ($bookingOverview): ?>
+                        <h6>📌 Booking Overview (Current Stay)</h6>
+                        <ul>
+                            <li><strong>Guest Name:</strong> <?= $guest_full_name ?></li>
+                            <li><strong>Room Type:</strong> <?= $bookingOverview['room_type'] ?></li>
+                            <li><strong>Room Number:</strong> <?= $bookingOverview['room_number'] ?></li>
+                            <li><strong>Check-In Date:</strong> <?= $bookingOverview['check_in_date'] ?></li>
+                            <li><strong>Check-Out Date:</strong> <?= $bookingOverview['check_out_date'] ?></li>
+                            <li><strong>Nights Stayed:</strong> <?= $bookingOverview['nights_stayed'] ?> Nights</li>
+                            <li><strong>Total Amount Paid:</strong> ₱<?= number_format($bookingOverview['total_paid'], 2) ?></li>
+                        </ul>
+                    <?php else: ?>
+                        <p>No active bookings found.</p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div><!-- End Booking Overview -->
@@ -58,68 +123,34 @@ include("./includes/sidebar.php");
                 <div class="card-body">
                     <h5 class="card-title">Booking History</h5>
 
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Room Type</th>
-                                <th scope="col">Check-In Date</th>
-                                <th scope="col">Check-Out Date</th>
-                                <th scope="col">Room Services</th>
-                                <th scope="col">Total Paid</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Deluxe Suite</td>
-                                <td>2025-02-15</td>
-                                <td>2025-02-18</td>
-                                <td>Breakfast, Laundry</td>
-                                <td>₱30,500</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>Standard Room</td>
-                                <td>2025-03-01</td>
-                                <td>2025-03-05</td>
-                                <td>Room Cleaning</td>
-                                <td>₱18,000</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td>Executive Room</td>
-                                <td>2025-01-20</td>
-                                <td>2025-01-25</td>
-                                <td>Breakfast, Spa</td>
-                                <td>₱42,000</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">4</th>
-                                <td>Family Room</td>
-                                <td>2025-02-10</td>
-                                <td>2025-02-14</td>
-                                <td>Extra Bed, Laundry</td>
-                                <td>₱28,500</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">5</th>
-                                <td>Standard Room</td>
-                                <td>2025-02-22</td>
-                                <td>2025-02-28</td>
-                                <td>None</td>
-                                <td>₱10,000</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">6</th>
-                                <td>Standard Room</td>
-                                <td>2025-03-05</td>
-                                <td>2025-03-08</td>
-                                <td>Room Cleaning</td>
-                                <td>₱17,500</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <?php if (!empty($bookingHistory)): ?>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Room Type</th>
+                                    <th>Check-In Date</th>
+                                    <th>Check-Out Date</th>
+                                    <th>Room Services</th>
+                                    <th>Total Paid</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($bookingHistory as $index => $history): ?>
+                                    <tr>
+                                        <th scope="row"><?= $index + 1 ?></th>
+                                        <td><?= $history['room_type'] ?></td>
+                                        <td><?= $history['check_in_date'] ?></td>
+                                        <td><?= $history['check_out_date'] ?></td>
+                                        <td><?= $history['room_services'] ?? 'None' ?></td>
+                                        <td>₱<?= number_format($history['total_paid'], 2) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php else: ?>
+                        <p>No booking history found.</p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div><!-- End Booking History -->

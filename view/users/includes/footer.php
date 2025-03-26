@@ -3,14 +3,15 @@
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="copyright">
-      &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
+      <!-- &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved -->
     </div>
     <div class="credits">
       <!-- All the links in the footer should remain intact. -->
       <!-- You can delete the links only if you purchased the pro version. -->
       <!-- Licensing information: https://bootstrapmade.com/license/ -->
       <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-      Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      <!-- Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> -->
+      Redesigned by <strong>Anquillano</strong> and <strong>Gabriento</strong>
     </div>
   </footer><!-- End Footer -->
 
@@ -31,4 +32,23 @@
 
 </body>
 
+<style>
+/* Back to Top Button */
+.back-to-top {
+    background-color: #FBC741 !important; /* Change background to #FBC741 */
+    color: #1e1e1e !important; /* Change icon color */
+    border-radius: 50%; /* Make it round */
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hover Effect */
+.back-to-top:hover {
+    background-color: #e0a830 !important; /* Slightly darker shade */
+    color: white !important;
+}
+</style>
 </html>

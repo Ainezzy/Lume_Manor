@@ -72,6 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         echo "Error: " . mysqli_error($conn);
     }
+    
 
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
@@ -179,9 +180,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="col-sm-10">
                         <select class="form-select" name="preferredTime" required>
                             <option selected disabled>Select Time</option>
-                            <option value="1">Morning (8:00 to 10:00AM)</option>
-                            <option value="2">Afternoon (11:00 to 5:00PM)</option>
-                            <option value="3">Evening (6:00 to 9:00PM)</option>
+                            <option value="Morning (8:00 to 10:00AM)">Morning (8:00 to 10:00AM)</option>
+                            <option value="Afternoon (11:00 to 5:00PM)">Afternoon (11:00 to 5:00PM)</option>
+                            <option value="Evening (6:00 to 9:00PM)">Evening (6:00 to 9:00PM)</option>
                         </select>
                         </div>
                     </div>
