@@ -60,56 +60,56 @@
   }
 
   /* Sidebar Nav Items */
-.sidebar-nav .nav-link {
-    color: white !important; /* Force white text */
-    background-color: #222D17 !important; /* Match sidebar bg */
-    padding: 12px 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-radius: 5px;
-    transition: background 0.3s ease, color 0.3s ease;
-}
+  .sidebar-nav .nav-link {
+      color: white !important; /* Force white text */
+      background-color: #222D17 !important; /* Match sidebar bg */
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 5px;
+      transition: background 0.3s ease, color 0.3s ease;
+  }
 
-/* Sidebar Icons */
-.sidebar-nav .nav-link i {
-    color: white !important; /* Force white icons */
-    font-size: 1.2rem;
-}
+  /* Sidebar Icons */
+  .sidebar-nav .nav-link i {
+      color: white !important; /* Force white icons */
+      font-size: 1.2rem;
+  }
 
-/* Hover Effect - Lighter Shade of Background */
-.sidebar-nav .nav-link:hover {
-    background-color: #2E3B20 !important; /* Slightly lighter shade */
-    color: white !important;
-}
+  /* Hover Effect - Lighter Shade of Background */
+  .sidebar-nav .nav-link:hover {
+      background-color: #2E3B20 !important; /* Slightly lighter shade */
+      color: white !important;
+  }
 
-/* Active Link - Gold Highlight */
-.sidebar-nav .nav-link.active, 
-.sidebar-nav .nav-link[aria-current="page"] {
-    background-color: #BB9C34 !important;
-    color: white !important;
-}
+  /* Active Link - Gold Highlight */
+  .sidebar-nav .nav-link.active, 
+  .sidebar-nav .nav-link[aria-current="page"] {
+      background-color: #BB9C34 !important;
+      color: white !important;
+  }
 
-/* Active Icons */
-.sidebar-nav .nav-link.active i {
-    color: white !important;
-}
+  /* Active Icons */
+  .sidebar-nav .nav-link.active i {
+      color: white !important;
+  }
 
-/* Dropdown Menu inside Sidebar */
-.sidebar-nav .nav-content {
-    background-color: #222D17 !important;
-    padding-left: 20px;
-}
+  /* Dropdown Menu inside Sidebar */
+  .sidebar-nav .nav-content {
+      background-color: #222D17 !important;
+      padding-left: 20px;
+  }
 
-/* Dropdown Links */
-.sidebar-nav .nav-content a {
-    color: white !important;
-}
+  /* Dropdown Links */
+  .sidebar-nav .nav-content a {
+      color: white !important;
+  }
 
-/* Dropdown Hover */
-.sidebar-nav .nav-content a:hover {
-    color: #BB9C34 !important;
-}
+  /* Dropdown Hover */
+  .sidebar-nav .nav-content a:hover {
+      color: #BB9C34 !important;
+  }
 
   .sidebar-logo {
     padding: 15px;
